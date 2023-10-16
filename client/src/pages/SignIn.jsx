@@ -79,8 +79,8 @@ navigate('sign-in')
         </form>
         <div className="gap-4 mt-4 flex">
           <p>Have an account?</p>
-          <Link to={"/sign-in"}>
-          <span className="text-orange-500">Sign-In</span>
+          <Link to={"/sign-up"}>
+          <span className="text-orange-500 hover:underline">Sign-In</span>
           </Link>
         </div>
         {Error && <p className="text-red-500 mt-5"> {Error} </p>}
