@@ -10,22 +10,54 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { app } from "../firebase";
+import {
+  updateSuccess,
+  updateStart,
+  updateFailure,
+} from "../redux/user/userSlice.js";
+import { useDispatch } from "react-redux";
 
 export default function Profile() {
+  const handleOnchange = (e) => {
+    setFormdata({ ...formdata, [e.target.id]: e.target.value });
+  };
   const [file, setFile] = useState(undefined);
   const [filePerc, setFilePerc] = useState(0);
   const [err, setErr] = useState(false);
   const [formdata, setFormdata] = useState({});
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
   const fileref = useRef(null);
-  console.log(file);
-  console.log(filePerc);
-  console.log(formdata);
+  const dispatch = useDispatch();
+  // console.log(file);
+  // console.log(filePerc);
+  // console.log(formdata);
   useEffect(() => {
     if (file) {
       handlefileupload(file);
     }
   }, [file]);
+  const handleonSubmit = (e) => {
+    e.preventDefault();
+    dispatch(updateStart());
+
+    fetch(`api/user/update/${currentUser._id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formdata),
+    })
+      .then((data) => data.json())
+      .then((res) => {
+        if (res.success === true) {
+          dispatch(updateSuccess(res));
+        } else {
+          dispatch(updateFailure(res.message));
+        }
+      })
+      .catch((error) => {
+        dispatch(updateFailure(error.message));
+      });
+  };
+
   const handlefileupload = (file) => {
     const storage = getStorage(app);
     const filename = new Date().getTime() + file.name;
@@ -40,7 +72,7 @@ export default function Profile() {
         setFilePerc(Math.round(progress));
       },
       (error) => {
-        setErr(true);
+        console.log(error);
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((DownloadURL) => {
@@ -51,7 +83,7 @@ export default function Profile() {
   };
   return (
     <div className="p-7 max-w-lg mx-auto">
-      <form className="flex flex-col gap-4">
+      <form onSubmit={handleonSubmit} className="flex flex-col gap-4">
         <input
           hidden
           active="image/.*"
@@ -91,21 +123,29 @@ export default function Profile() {
           placeholder="username"
           type="text"
           id="username"
+          onChange={handleOnchange}
+          defaultValue={currentUser.username}
         />
         <input
           className="p-3 rounded-lg bg-orange-50"
           placeholder="email"
-          type="text"
+          type="email"
           id="email"
+          onChange={handleOnchange}
+          defaultValue={currentUser.email}
         />
         <input
           className="p-3 rounded-lg bg-orange-50"
           placeholder="password"
-          type="text"
+          type="password"
           id="password"
+          onChange={handleOnchange}
         />
-        <button className="p-3 rounded-lg bg-orange-500 text-white">
-          UPDATE
+        <button
+          disabled={loading}
+          className="p-3 rounded-lg bg-orange-500 text-white"
+        >
+          {loading ? "LOADING" : "UPDATE"}
         </button>
       </form>
 
@@ -117,6 +157,10 @@ export default function Profile() {
           SignOut
         </span>
       </div>
+      <p className="text-red-500 mt-4">{error ? error : ""}</p>
+      <p className="text-green-500 mt-4">
+        {!error ? "Sign in successfull" : ""}
+      </p>
     </div>
   );
 }
