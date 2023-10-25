@@ -9,7 +9,7 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { app } from "../firebase";
 import {
   updateSuccess,
@@ -35,7 +35,7 @@ export default function Profile() {
   const { currentUser, loading, error } = useSelector((state) => state.user);
   const fileref = useRef(null);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [updatedSuccess, setUpdatedSuccess] = useState(false);
 
   // console.log(file);
@@ -59,8 +59,8 @@ export default function Profile() {
       .then((res) => {
         if (res.success === true) {
           dispatch(updateSuccess(res));
-          dispatch('/sign-up')
-          setUpdatedSuccess(true)
+          // dispatch("/sign-up");
+          setUpdatedSuccess(true);
         } else {
           dispatch(updateFailure(res.message));
         }
@@ -73,7 +73,7 @@ export default function Profile() {
     try {
       dispatch(deleteStart());
       const res = await fetch(`/api/user/delete/${currentUser._id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
       const data = await res.json();
       if (data.success === false) {
@@ -110,21 +110,25 @@ export default function Profile() {
     );
   };
   const handlesignout = async () => {
-
     try {
-      dispatch(signoutStart())
-      const res = await fetch('/api/auth/signout');
+      dispatch(signoutStart());
+      const res = await fetch("/api/auth/signout");
       const data = await res.json();
       if (data.success === false) {
         dispatch(signoutFailure(data.message));
         return;
       }
       dispatch(signoutSuccess(data));
-      navigate('/sign-up')
     } catch (error) {
       dispatch(signoutFailure(error.message));
     }
-  }
+  };
+//   await fetch(config.serverUrl + '/user/logout', {
+//     method: 'GET',
+//     credentials: 'include'
+// })
+// .then(() => router.push('/login'))
+// .catch((err) => console.log('internal server error\n', err) )
   return (
     <div className="p-7 max-w-lg mx-auto">
       <form onSubmit={handleonSubmit} className="flex flex-col gap-4">
@@ -191,6 +195,13 @@ export default function Profile() {
         >
           {loading ? "LOADING" : "UPDATE"}
         </button>
+
+        <Link
+          to="/createlisting"
+          className="p-3 text-white bg-green-500 rounded-lg text-center hover:opacity-80 uppercase"
+        >
+          Create listing
+        </Link>
       </form>
 
       <div className="flex justify-between mt-4">
@@ -209,9 +220,7 @@ export default function Profile() {
       </div>
       <p className="text-red-500 mt-4">{error ? error : ""}</p>
       <p className="text-green-500 mt-4">
-        {
-        updatedSuccess?"User updated successfully":" "
-        }
+        {updatedSuccess ? "User updated successfully" : " "}
       </p>
     </div>
   );

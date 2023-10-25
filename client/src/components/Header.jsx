@@ -36,7 +36,11 @@ export default function Header() {
           <Link to="/profile">
             {/* {console.log(currentUser.photo)} */}
             {currentUser ? (
-              <img className="w-7 h-7 rounded-full object-cover" src={currentUser.photo} alt="yourimage" />
+              <img
+                className="w-7 h-7 rounded-full object-cover"
+                src={currentUser.photo}
+                alt="yourimage"
+              />
             ) : (
               <li className="hover:underline text-orange-700">Sign in</li>
             )}
