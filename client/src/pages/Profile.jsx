@@ -9,7 +9,7 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 import { app } from "../firebase";
 import {
   updateSuccess,
@@ -18,6 +18,9 @@ import {
   deleteFailure,
   deleteStart,
   deleteSuccess,
+  signoutSuccess,
+  signoutFailure,
+  signoutStart,
 } from "../redux/user/userSlice.js";
 import { useDispatch } from "react-redux";
 
@@ -32,7 +35,9 @@ export default function Profile() {
   const { currentUser, loading, error } = useSelector((state) => state.user);
   const fileref = useRef(null);
   const dispatch = useDispatch();
-  const navigate= useNavigate();
+  const navigate = useNavigate();
+  const [updatedSuccess, setUpdatedSuccess] = useState(false);
+
   // console.log(file);
   // console.log(filePerc);
   // console.log(formdata);
@@ -54,6 +59,8 @@ export default function Profile() {
       .then((res) => {
         if (res.success === true) {
           dispatch(updateSuccess(res));
+          dispatch('/sign-up')
+          setUpdatedSuccess(true)
         } else {
           dispatch(updateFailure(res.message));
         }
@@ -71,12 +78,9 @@ export default function Profile() {
       const data = await res.json();
       if (data.success === false) {
         dispatch(deleteFailure(data.message));
-
         return;
       }
       dispatch(deleteSuccess(data));
-      navigate('/sign-up')
-      
     } catch (error) {
       dispatch(deleteFailure(error.message));
     }
@@ -105,6 +109,22 @@ export default function Profile() {
       }
     );
   };
+  const handlesignout = async () => {
+
+    try {
+      dispatch(signoutStart())
+      const res = await fetch('/api/auth/signout');
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(signoutFailure(data.message));
+        return;
+      }
+      dispatch(signoutSuccess(data));
+      navigate('/sign-up')
+    } catch (error) {
+      dispatch(signoutFailure(error.message));
+    }
+  }
   return (
     <div className="p-7 max-w-lg mx-auto">
       <form onSubmit={handleonSubmit} className="flex flex-col gap-4">
@@ -180,13 +200,18 @@ export default function Profile() {
         >
           Delete account
         </span>
-        <span className="text-red-500 cursor-pointer hover:text-red-700">
+        <span
+          onClick={handlesignout}
+          className="text-red-500 cursor-pointer hover:text-red-700"
+        >
           SignOut
         </span>
       </div>
       <p className="text-red-500 mt-4">{error ? error : ""}</p>
       <p className="text-green-500 mt-4">
-        {!error ? "Sign in successfull" : ""}
+        {
+        updatedSuccess?"User updated successfully":" "
+        }
       </p>
     </div>
   );
