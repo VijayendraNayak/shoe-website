@@ -23,6 +23,7 @@ import {
   signoutStart,
 } from "../redux/user/userSlice.js";
 import { useDispatch } from "react-redux";
+import { async } from "@firebase/util";
 
 export default function Profile() {
   const handleOnchange = (e) => {
@@ -37,6 +38,8 @@ export default function Profile() {
   const dispatch = useDispatch();
   // const navigate = useNavigate();
   const [updatedSuccess, setUpdatedSuccess] = useState(false);
+  const [userlisting,setUserlisting]=useState([]);
+  const [listingerror,setListingerror]=useState(false)
 
   // console.log(file);
   // console.log(filePerc);
@@ -123,12 +126,25 @@ export default function Profile() {
       dispatch(signoutFailure(error.message));
     }
   };
-//   await fetch(config.serverUrl + '/user/logout', {
-//     method: 'GET',
-//     credentials: 'include'
-// })
-// .then(() => router.push('/login'))
-// .catch((err) => console.log('internal server error\n', err) )
+  const handleshowlisting = async () => {
+    try {
+      await fetch(`api/user/getlisting/${currentUser._id}`).then(
+        async(data) => {
+          const res=await data.json();
+          if (res.success===false){
+            setListingerror(true)
+            return
+          }
+          else{
+            setUserlisting(res)
+            setListingerror(false)
+          }
+        }
+      );
+    } catch (error) {
+      setListingerror(true);
+    }
+  };
   return (
     <div className="p-7 max-w-lg mx-auto">
       <form onSubmit={handleonSubmit} className="flex flex-col gap-4">
@@ -218,10 +234,39 @@ export default function Profile() {
           SignOut
         </span>
       </div>
-      <p className="text-red-500 mt-4">{error ? error : ""}</p>
       <p className="text-green-500 mt-4">
         {updatedSuccess ? "User updated successfully" : " "}
       </p>
+        <p className="text-red-500 mt-4">{err ? err : ""}</p>
+      <div className="flex justify-center">
+        <button
+          type="button"
+          onClick={handleshowlisting}
+          className="text-green-500 text-sm  "
+        >
+          Show listing
+        </button>
+        <p className="text-red-500 mt-4">{listingerror ? listingerror : ""}</p>
+      </div>
+        {userlisting && userlisting.length>0 &&
+        <div>
+          <h1 className="text-center p-4 mt-4 font-semibold text-3xl">Your listings</h1>
+          {userlisting.map((listing)=>(
+            <div key={listing._id} className="flex justify-between border border-orange-200 rounded-lg gap-4 text-center items-center p-3 m-4 ">
+              <Link to={`/listing/${listing._id}`}>
+                <img src={listing.imageUrls[0]} alt="image" className="mt-3 w-20 h-12 border border-orange-200 object-contain" />
+              </Link>
+              <Link className=" font-semibold hover:underline truncate flex-1" to={`/listing/${listing._id}`}>
+              <p >{listing.name}</p>
+              </Link>
+              <div className="flex flex-col">
+                <button className="text-red-500 p-1 hover:opacity-70">Delete</button>
+                <button className="text-green-500 p-1 hover:opacity-70">Edit</button>
+              </div>
+            </div>
+            ))}
+        </div>
+        }
     </div>
   );
 }

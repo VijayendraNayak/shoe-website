@@ -348,7 +348,7 @@ const CreateListing = () => {
                 </div>
               ))}
             <button
-              disabled={loading || uploading}
+              disabled={(loading || uploading)}
               className=" uppercase rounded-lg p-3 bg-orange-500 text-white text-center hover:opacity-80"
             >
               {loading ? "Creating..." : "Create Listing"}
