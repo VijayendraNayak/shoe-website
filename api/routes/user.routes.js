@@ -9,4 +9,5 @@ router.post("/update/:id",verifyUser,updateuser)
 router.delete("/delete/:id",verifyUser,deleteuser)
 router.get("/getlisting/:id",verifyUser,getlisting)
 
+
 export default router;

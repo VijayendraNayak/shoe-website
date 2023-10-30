@@ -38,8 +38,8 @@ export default function Profile() {
   const dispatch = useDispatch();
   // const navigate = useNavigate();
   const [updatedSuccess, setUpdatedSuccess] = useState(false);
-  const [userlisting,setUserlisting]=useState([]);
-  const [listingerror,setListingerror]=useState(false)
+  const [userlisting, setUserlisting] = useState([]);
+  const [listingerror, setListingerror] = useState(false);
 
   // console.log(file);
   // console.log(filePerc);
@@ -129,20 +129,35 @@ export default function Profile() {
   const handleshowlisting = async () => {
     try {
       await fetch(`api/user/getlisting/${currentUser._id}`).then(
-        async(data) => {
-          const res=await data.json();
-          if (res.success===false){
-            setListingerror(true)
-            return
-          }
-          else{
-            setUserlisting(res)
-            setListingerror(false)
+        async (data) => {
+          const res = await data.json();
+          if (res.success === false) {
+            setListingerror(true);
+            return;
+          } else {
+            setUserlisting(res);
+            setListingerror(false);
           }
         }
       );
     } catch (error) {
       setListingerror(true);
+    }
+  };
+  const handledeletelisting = async (listingid) => {
+    try {
+      await fetch(`/api/listing/delete/${listingid}`, {
+        method: "DELETE",
+      }).then(async (data) => {
+        const res = await data.json();
+        if (res.success === true) {
+          setUserlisting((prev) =>
+            prev.filter((listing) => listing._id !== listingid)
+          );
+        }
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
   return (
@@ -237,7 +252,7 @@ export default function Profile() {
       <p className="text-green-500 mt-4">
         {updatedSuccess ? "User updated successfully" : " "}
       </p>
-        <p className="text-red-500 mt-4">{err ? err : ""}</p>
+      <p className="text-red-500 mt-4">{err ? err : ""}</p>
       <div className="flex justify-center">
         <button
           type="button"
@@ -248,25 +263,44 @@ export default function Profile() {
         </button>
         <p className="text-red-500 mt-4">{listingerror ? listingerror : ""}</p>
       </div>
-        {userlisting && userlisting.length>0 &&
+      {userlisting && userlisting.length > 0 && (
         <div>
-          <h1 className="text-center p-4 mt-4 font-semibold text-3xl">Your listings</h1>
-          {userlisting.map((listing)=>(
-            <div key={listing._id} className="flex justify-between border border-orange-200 rounded-lg gap-4 text-center items-center p-3 m-4 ">
+          <h1 className="text-center p-4 mt-4 font-semibold text-3xl">
+            Your listings
+          </h1>
+          {userlisting.map((listing) => (
+            <div
+              key={listing._id}
+              className="flex justify-between border border-orange-200 rounded-lg gap-4 text-center items-center p-3 m-4 "
+            >
               <Link to={`/listing/${listing._id}`}>
-                <img src={listing.imageUrls[0]} alt="image" className="mt-3 w-20 h-12 border border-orange-200 object-contain" />
+                <img
+                  src={listing.imageUrls[0]}
+                  alt="image"
+                  className="mt-3 w-20 h-12 border border-orange-200 object-contain"
+                />
               </Link>
-              <Link className=" font-semibold hover:underline truncate flex-1" to={`/listing/${listing._id}`}>
-              <p >{listing.name}</p>
+              <Link
+                className=" font-semibold hover:underline truncate flex-1"
+                to={`/listing/${listing._id}`}
+              >
+                <p>{listing.name}</p>
               </Link>
               <div className="flex flex-col">
-                <button className="text-red-500 p-1 hover:opacity-70">Delete</button>
-                <button className="text-green-500 p-1 hover:opacity-70">Edit</button>
+                <button
+                  onClick={() => handledeletelisting(listing._id)}
+                  className="text-red-500 p-1 hover:opacity-70"
+                >
+                  Delete
+                </button>
+                <button className="text-green-500 p-1 hover:opacity-70">
+                  Edit
+                </button>
               </div>
             </div>
-            ))}
+          ))}
         </div>
-        }
+      )}
     </div>
   );
 }
