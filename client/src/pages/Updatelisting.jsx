@@ -5,12 +5,11 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { app } from "../firebase";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { async } from "@firebase/util";
-
+import { useParams } from "react-router-dom";
 const CreateListing = () => {
   const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
@@ -19,6 +18,7 @@ const CreateListing = () => {
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const params = useParams();
   const [formdata, setFormdata] = useState({
     imageUrls: [],
     name: "",
@@ -34,9 +34,20 @@ const CreateListing = () => {
     furnished: false,
   });
 
-  
+  useEffect(() => {
+    const fetchlisting = async () => {
+      const id = await params.id;
+      await fetch(`/api/listing/get/${id}`).then(async (data) => {
+        const res = await data.json();
+        if (res.success === false) {
+          console.log(res.message);
+        }
+        setFormdata(res);
+      });
+    };
+    fetchlisting();
+  }, []);
 
-  console.log(formdata);
   const handleimagesubmit = () => {
     setUploading(true);
     if (files.length > 0 && files.length + formdata.imageUrls.length < 7) {
@@ -128,7 +139,7 @@ const CreateListing = () => {
     try {
       setLoading(true);
       setError(false);
-      const response = await fetch("/api/listing/createlisting", {
+      const response = await fetch(`/api/listing/update/${params.id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -161,7 +172,7 @@ const CreateListing = () => {
   return (
     <main className="gap-4">
       <h1 className="text-center mt-6 font-semibold text-4xl">
-        Create a Listing
+        Update a Listing
       </h1>
       <form
         onSubmit={submithandler}
@@ -355,7 +366,7 @@ const CreateListing = () => {
               disabled={loading || uploading}
               className=" uppercase rounded-lg p-3 bg-orange-500 text-white text-center hover:opacity-80"
             >
-              {loading ? "Creating..." : "Create Listing"}
+              {loading ? "updating..." : "Update Listing"}
             </button>
             {error && <p className="text-red-500 text-sm">{error}</p>}
           </div>

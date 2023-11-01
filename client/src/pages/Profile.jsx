@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { useRef } from "react";
 import { useState } from "react";
 import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {
   ref,
   getStorage,
@@ -23,7 +24,6 @@ import {
   signoutStart,
 } from "../redux/user/userSlice.js";
 import { useDispatch } from "react-redux";
-import { async } from "@firebase/util";
 
 export default function Profile() {
   const handleOnchange = (e) => {
@@ -36,19 +36,19 @@ export default function Profile() {
   const { currentUser, loading, error } = useSelector((state) => state.user);
   const fileref = useRef(null);
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
+  const params = useParams();
   const [updatedSuccess, setUpdatedSuccess] = useState(false);
   const [userlisting, setUserlisting] = useState([]);
   const [listingerror, setListingerror] = useState(false);
 
-  // console.log(file);
-  // console.log(filePerc);
-  // console.log(formdata);
   useEffect(() => {
-    if (file) {
-      handlefileupload(file);
-    }
-  }, [file]);
+    const fetchlisting = async () => {
+      const id =await params.id;
+      console.log(id);
+    };
+    fetchlisting();
+  }, []);
+
   const handleonSubmit = async (e) => {
     e.preventDefault();
     dispatch(updateStart());
@@ -160,6 +160,7 @@ export default function Profile() {
       console.log(error);
     }
   };
+
   return (
     <div className="p-7 max-w-lg mx-auto">
       <form onSubmit={handleonSubmit} className="flex flex-col gap-4">
@@ -261,6 +262,7 @@ export default function Profile() {
         >
           Show listing
         </button>
+
         <p className="text-red-500 mt-4">{listingerror ? listingerror : ""}</p>
       </div>
       {userlisting && userlisting.length > 0 && (
@@ -293,9 +295,11 @@ export default function Profile() {
                 >
                   Delete
                 </button>
-                <button className="text-green-500 p-1 hover:opacity-70">
-                  Edit
-                </button>
+                <Link to={`/updatelisting/${listing._id}`}>
+                  <button className="text-green-500 p-1 hover:opacity-70">
+                    Edit
+                  </button>
+                </Link>
               </div>
             </div>
           ))}
