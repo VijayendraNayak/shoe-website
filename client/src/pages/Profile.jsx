@@ -44,7 +44,6 @@ export default function Profile() {
   useEffect(() => {
     const fetchlisting = async () => {
       const id =await params.id;
-      console.log(id);
     };
     fetchlisting();
   }, []);
