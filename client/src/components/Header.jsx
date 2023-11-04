@@ -1,10 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
+  const [searchstate, setSearchstate] = useState(" ");
+  const navigate = useNavigate();
+
+  const searchsubmit = (e) => {
+    e.preventDefault();
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set("searchstate", searchstate);
+    const searchQuery = urlParams.toString();
+    navigate(`/search?${searchQuery}`);
+  };
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchTermFromUrl = urlParams.get("searchstate");
+    // console.log(searchTermFromUrl)
+    if (searchTermFromUrl) {
+      setSearchstate(searchTermFromUrl);
+    }
+  }, [location.search]);
   return (
     <header className="bg-orange-100">
       <div className="flex justify-between p-3 max-w-6xl mx-auto">
@@ -14,13 +32,22 @@ export default function Header() {
             <span className="text-orange-500">Shop</span>
           </h1>
         </Link>
-        <form className="bg-orange-200 rounded-lg flex items-center px-3 ">
+        <form
+          onSubmit={searchsubmit}
+          className="bg-orange-200 rounded-lg flex items-center px-3 "
+        >
           <input
             type="text"
             placeholder="Search..."
             className="bg-transparent focus:outline-none w-24 sm:w-64 "
+            onChange={(e) => {
+              setSearchstate(e.target.value);
+            }}
+            value={searchstate}
           />
-          <FaSearch className="text-orange-600"></FaSearch>
+          <button>
+            <FaSearch className="text-orange-600"></FaSearch>
+          </button>
         </form>
         <ul className="flex  gap-4">
           <Link to="/">
