@@ -9,6 +9,7 @@ import SignUp from "./pages/SignUp";
 import CreateListing from "./pages/CreateListing";
 import Updatelisting from "./pages/Updatelisting";
 import Listing from "./pages/Listing";
+import Search from "./pages/Search";
 export default function App() {
   return (
     <BrowserRouter>
@@ -19,10 +20,11 @@ export default function App() {
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/about" element={<About />} />
         <Route path="/listing/:id" element={<Listing />} />
+        <Route path="/search" element={<Search />} />
         <Route element={<Privateroute />}>
-          <Route path='/profile' element={<Profile />} />
-          <Route path='/createlisting' element={<CreateListing />} />
-          <Route path='/updatelisting/:id' element={<Updatelisting />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/createlisting" element={<CreateListing />} />
+          <Route path="/updatelisting/:id" element={<Updatelisting />} />
         </Route>
       </Routes>
     </BrowserRouter>
