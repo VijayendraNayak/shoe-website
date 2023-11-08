@@ -57,7 +57,7 @@ export const getlisting = async (req, res, next) => {
 }
 export const getlistings = async (req, res, next) => {
   try {
-    const limit = parseInt(req.query.limit) || 9
+    const limit = parseInt(req.query.limit) || 1
     const startIndex = parseInt(req.query.startIndex) || 0
     let offer = req.query.offer
     if (offer === "false" || offer === undefined) {
